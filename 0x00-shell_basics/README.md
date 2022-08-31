@@ -1,3 +1,9 @@
+12-file_type prints the type of file iamafile is
+11-lists lists all in current parent and root directories
+10-back navigates to the previous directory
+9-firstdirdeletion deletes my first directory in tmp
+8-firstdelete deletes betty from 7
+7-movethatfile moves a file from tmp to myfirstdirectory
 6-firstdirectory creates my_first_directory in tmp
 5-listfilesdigitonly lists all files digits including hidden files'
 4-listmorefiles list all contents including hidden files in the directory
