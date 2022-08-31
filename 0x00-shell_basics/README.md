@@ -1,3 +1,5 @@
+14-copy_html copies html files from pwd to parent directory like update
+13-symbolic_link creates a symlink to binls named ls
 12-file_type prints the type of file iamafile is
 11-lists lists all in current parent and root directories
 10-back navigates to the previous directory
