@@ -1,3 +1,8 @@
+school.mgc creates magic file to detect school files
+103-commas lists files with commas
+102-tree creates new directories
+101-clean_emacs deletes emacs files
+100-lets_move moves html files to another directory
 14-copy_html copies html files from pwd to parent directory like update
 13-symbolic_link creates a symlink to binls named ls
 12-file_type prints the type of file iamafile is
