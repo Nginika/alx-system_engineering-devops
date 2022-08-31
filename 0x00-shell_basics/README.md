@@ -1,2 +1,3 @@
+2-bring_me_home changes pwd to user's home directory
 1-listit lists content of the current directory
 0-current_working_directory prints working directory
