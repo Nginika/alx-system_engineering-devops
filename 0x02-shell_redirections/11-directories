@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -adAR | wc -l
+file . -type d -not -name '.' | wc -l
