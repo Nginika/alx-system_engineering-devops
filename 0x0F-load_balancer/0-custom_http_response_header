@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # configure an ubuntu server with nginx
-ssh -v ubuntu@34.229.255.211
+
 #install nginx and allow firewall
 sudo apt-get update
 sudo apt-get -y install nginx
