@@ -27,7 +27,7 @@ defaults
     timeout connect  5000
     timeout client  10000
     timeout server  10000
-listen hbnb
+frontend hbnb
     bind 0.0.0.0:80
     mode http
     stats enable
@@ -38,5 +38,75 @@ listen hbnb
     server 157777-web-01 52.87.10.77:80 check
     server 157777-web-02 34.229.255.211:80 check
 " >> /etc/haproxy/haproxy.cfg
+
+# Set up an init script for managing HAProxy
+cat > /etc/init.d/haproxy <<EOF
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          haproxy
+# Required-Start:    \$remote_fs \$syslog
+# Required-Stop:     \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: HAProxy
+# Description:       HAProxy is a TCP/HTTP reverse proxy which is particularly suited for high availability environments.
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DAEMON=/usr/sbin/haproxy
+CONFIG=/etc/haproxy/haproxy.cfg
+PIDFILE=/var/run/haproxy.pid
+
+# Set up environment variables
+test -x \$DAEMON || exit 0
+. /lib/lsb/init-functions
+
+# Check for existence of config file
+if [ ! -f \$CONFIG ]; then
+    log_warning_msg "Config file \$CONFIG does not exist."
+    exit 0
+fi
+
+# Check for existence of pidfile
+if [ ! -f \$PIDFILE ]; then
+    log_warning_msg "Pidfile \$PIDFILE does not exist."
+    exit 0
+fi
+
+# Function to start the service
+do_start () {
+    /etc/init.d/haproxy stop > /dev/null 2>&1 || true
+    sleep 1
+    start-stop-daemon --start --quiet --pidfile \$PIDFILE --exec \$DAEMON -- -f \$CONFIG -D -p \$PIDFILE
+}
+
+# Function to stop the service
+do_stop () {
+    start-stop-daemon --stop --quiet --pidfile \$PIDFILE --exec \$DAEMON
+    rm -f \$PIDFILE
+}
+
+case "\$1" in
+    start)
+        log_daemon_msg "Starting HAProxy"
+        do_start
+        ;;
+    stop)
+        log_daemon_msg "Stopping HAProxy"
+        do_stop
+        ;;
+    restart|force-reload)
+        log_daemon_msg "Restarting HAProxy"
+        do_stop
+        sleep 1
+        do_start
+        ;;
+    *)
+        log_action_msg "Usage: /etc/init.d/haproxy {start|stop|restart|force-reload}"
+        exit 2
+        ;;
+esac
+
+EOF
 
 service haproxy start
