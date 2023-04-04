@@ -12,6 +12,6 @@ frontend http-in
 backend servers
     balance roundrobin
     server 157777-web-01 52.87.10.77
-    server 157777-web-01 34.229.255.211
+    server 157777-web-02 34.229.255.211
 " >> /etc/haproxy/haproxy.cfg
 sudo service haproxy restart
