@@ -1,106 +1,17 @@
-#!usr/bin/env bash
-# Install HAProxy
-apt-get update
-apt-get install -y haproxy
-
-# Configure HAProxy to send traffic to web-01 and web-02 using roundrobin
-cat > /etc/haproxy/haproxy.cfg <<EOF
-global
-    log 127.0.0.1 local0 notice
-    maxconn 2000
-    user haproxy
-    group haproxy
-
-defaults
-    log global
-    mode http
-    option httplog
-    option dontlognull
-    retries 3
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
-
-listen hbnb
-    bind 0.0.0.0:80
-    mode http
-    stats enable
-    stats uri /haproxy?stats
-    balance roundrobin
-    option httpclose
-    option forwardfor
-    server 157777-web-01 52.87.10.77:80 check
-    server 157777-web-02 34.229.255.211:80 check
-EOF
-
-# Set up an init script for managing HAProxy
-cat > /etc/init.d/haproxy <<EOF
 #!/usr/bin/env bash
-### BEGIN INIT INFO
-# Provides:          haproxy
-# Required-Start:    \$remote_fs \$syslog
-# Required-Stop:     \$remote_fs \$syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: HAProxy
-# Description:       HAProxy is a TCP/HTTP reverse proxy which is particularly suited for high availability environments.
-### END INIT INFO
-
-PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DAEMON=/usr/sbin/haproxy
-CONFIG=/etc/haproxy/haproxy.cfg
-PIDFILE=/var/run/haproxy.pid
-
-# Set up environment variables
-test -x \$DAEMON || exit 0
-. /lib/lsb/init-functions
-
-# Check for existence of config file
-if [ ! -f \$CONFIG ]; then
-    log_warning_msg "Config file \$CONFIG does not exist."
-    exit 0
-fi
-
-# Check for existence of pidfile
-if [ ! -f \$PIDFILE ]; then
-    log_warning_msg "Pidfile \$PIDFILE does not exist."
-    exit 0
-fi
-
-# Function to start the service
-do_start () {
-    /etc/init.d/haproxy stop > /dev/null 2>&1 || true
-    sleep 1
-    start-stop-daemon --start --quiet --pidfile \$PIDFILE --exec \$DAEMON -- -f \$CONFIG -D -p \$PIDFILE
-}
-
-# Function to stop the service
-do_stop () {
-    start-stop-daemon --stop --quiet --pidfile \$PIDFILE --exec \$DAEMON
-    rm -f \$PIDFILE
-}
-
-case "\$1" in
-    start)
-        log_daemon_msg "Starting HAProxy"
-        do_start
-        ;;
-    stop)
-        log_daemon_msg "Stopping HAProxy"
-        do_stop
-        ;;
-    restart|force-reload)
-        log_daemon_msg "Restarting HAProxy"
-        do_stop
-        sleep 1
-        do_start
-        ;;
-    *)
-        log_action_msg "Usage: /etc/init.d/haproxy {start|stop|restart|force-reload}"
-        exit 2
-        ;;
-esac
-
-exit
-
-systemctl start haproxy
+# This script installs and sets up a load balancer
+sudo apt-get -y update
+sudo apt-get -y install haproxy
+sudo chown -R "$USER:$USER" /etc/haproxy/
+printf %s "
+#frontend configuration
+frontend http-in
+    bind *:80
+    default_backend servers
+# Backend configuration
+backend servers
+    balance roundrobin
+    server server1 54.208.84.31
+    server server2 54.172.141.180
+" >> /etc/haproxy/haproxy.cfg
+sudo service haproxy restart
